@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}NetScope Inventory - Home{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-lg-6 mb-4 mb-lg-0">
+        <h1 class="display-4 fw-bold mb-3">Azure Networking <span class="text-primary">Demonstrator</span></h1>
+        <p class="lead text-muted mb-4">A purposefully built inventory application to test, learn, and validate Azure networking concepts including Application Gateways, Load Balancers, VNets, and WAF rules.</p>
+        <div class="d-flex gap-3">
+            <a href="{{ url_for('products.list_products') }}" class="btn btn-primary btn-lg px-4 shadow-sm">
+                <i class="bi bi-box-seam me-2"></i> Inventory App
+            </a>
+            <a href="{{ url_for('diagnostics.dashboard') }}" class="btn btn-outline-secondary btn-lg px-4 bg-white shadow-sm">
+                <i class="bi bi-activity me-2"></i> Diagnostics
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card bg-dark text-white shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-dark border-bottom border-secondary py-3 d-flex align-items-center">
+                <div class="d-flex gap-2 me-3">
+                    <div class="rounded-circle bg-danger" style="width: 12px; height: 12px;"></div>
+                    <div class="rounded-circle bg-warning" style="width: 12px; height: 12px;"></div>
+                    <div class="rounded-circle bg-success" style="width: 12px; height: 12px;"></div>
+                </div>
+                <span class="font-monospace small text-muted">app-architecture.json</span>
+            </div>
+            <div class="card-body p-4 font-monospace small">
+                <pre class="text-success m-0" style="white-space: pre-wrap;">
+{
+  "application": "NetScope Inventory",
+  "version": "1.0.0",
+  "architecture": {
+    "frontend": "Bootstrap 5 + Jinja2",
+    "backend": "Flask (Python)",
+    "database": "MySQL / SQLite",
+    "networking_features": [
+      "Health Probes (/health)",
+      "Reverse Proxy Headers",
+      "SSL Termination",
+      "Route-Based Routing (/api/*)"
+    ]
+  }
+}
+                </pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-md-4">
+        <div class="card h-100 hover-lift border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="diag-card-icon bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+                <h5 class="card-title fw-bold">Load Balancing</h5>
+                <p class="card-text text-muted">Test session persistence and traffic distribution across multiple backend VMs.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 hover-lift border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="diag-card-icon bg-success bg-opacity-10 text-success mb-3">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h5 class="card-title fw-bold">App Gateway & WAF</h5>
+                <p class="card-text text-muted">Validate Web Application Firewall rules, path-based routing, and SSL termination.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 hover-lift border-0 shadow-sm p-3">
+            <div class="card-body">
+                <div class="diag-card-icon bg-warning bg-opacity-10 text-warning mb-3">
+                    <i class="bi bi-hdd-network"></i>
+                </div>
+                <h5 class="card-title fw-bold">VNet & Subnets</h5>
+                <p class="card-text text-muted">Ensure proper Network Security Group (NSG) configurations and DB connectivity.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

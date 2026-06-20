@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}NetScope Inventory - Diagnostics Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Networking Diagnostics</h2>
+    <p class="text-muted">Live telemetry and request data from the application layer</p>
+</div>
+
+<div class="row g-4">
+    <!-- Server Identity Card -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white d-flex align-items-center py-3">
+                <i class="bi bi-hdd-rack fs-4 text-primary me-2"></i>
+                <h5 class="card-title fw-bold mb-0">Server Identity</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Hostname</span>
+                        <span class="fw-semibold font-monospace">{{ info.server.hostname }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Private IP</span>
+                        <span class="badge bg-primary rounded-pill">{{ info.server.ip }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">OS</span>
+                        <span>{{ info.server.os }} {{ info.server.os_release }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
+                        <span class="text-muted">Database Connection</span>
+                        {% if 'Connected' in info.db_status %}
+                            <span class="badge bg-success rounded-pill"><i class="bi bi-check-circle me-1"></i>Connected</span>
+                        {% else %}
+                            <span class="badge bg-danger rounded-pill"><i class="bi bi-x-circle me-1"></i>Failed</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Connection Card -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white d-flex align-items-center py-3">
+                <i class="bi bi-person-bounding-box fs-4 text-success me-2"></i>
+                <h5 class="card-title fw-bold mb-0">Client Connection</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Remote Address</span>
+                        <span class="fw-semibold font-monospace">{{ info.client.remote_addr }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">X-Forwarded-For</span>
+                        <span class="font-monospace text-truncate ms-3" style="max-width: 150px;" title="{{ info.client.x_forwarded_for }}">{{ info.client.x_forwarded_for or "N/A" }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
+                        <span class="text-muted">Calculated Real IP</span>
+                        <span class="badge bg-dark rounded-pill">{{ info.client.real_client_ip }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security & SSL Card -->
+    <div class="col-md-12 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white d-flex align-items-center py-3">
+                <i class="bi bi-shield-lock fs-4 text-warning me-2"></i>
+                <h5 class="card-title fw-bold mb-0">Protocol & Security</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Scheme</span>
+                        <span class="fw-semibold text-uppercase">{{ info.ssl.scheme }}</span>
+                    </li>
+                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
+                        <span class="text-muted">Secure TLS Context</span>
+                        {% if info.ssl.secure %}
+                            <span class="badge bg-success rounded-pill"><i class="bi bi-lock-fill me-1"></i>Secure</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill"><i class="bi bi-unlock-fill me-1"></i>Insecure</span>
+                        {% endif %}
+                    </li>
+                </ul>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('diagnostics.ssltest') }}" target="_blank" class="btn btn-outline-secondary btn-sm">Raw SSL JSON</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced HTTP Headers -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-list-columns fs-4 text-info me-2"></i>
+                    <h5 class="card-title fw-bold mb-0">Raw HTTP Headers Received by Flask</h5>
+                </div>
+                <a href="{{ url_for('diagnostics.headers') }}" target="_blank" class="btn btn-sm btn-outline-info">View JSON Endpoint</a>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">Inspect these headers to verify reverse proxy behavior (e.g., Nginx, Azure App Gateway) and see exactly what the upstream server sent to the application.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover font-monospace" style="font-size: 0.85rem;">
+                        <tbody>
+                            {% for key, value in info.headers.items() %}
+                            <tr>
+                                <td class="text-muted fw-bold border-end" style="width: 250px;">{{ key }}</td>
+                                <td class="text-break">{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagnostic Endpoints Reference -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title fw-bold mb-0"><i class="bi bi-link-45deg me-2"></i>Networking Testing Endpoints</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('diagnostics.health') }}" target="_blank" class="d-block p-3 border rounded text-decoration-none text-dark hover-bg-light transition">
+                            <div class="fw-bold text-success mb-1">/health</div>
+                            <div class="small text-muted">Load Balancer probe target. Verifies DB.</div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('diagnostics.dbtest') }}" target="_blank" class="d-block p-3 border rounded text-decoration-none text-dark hover-bg-light transition">
+                            <div class="fw-bold text-primary mb-1">/dbtest</div>
+                            <div class="small text-muted">Raw DB connectivity check with latency.</div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('diagnostics.slow') }}" target="_blank" class="d-block p-3 border rounded text-decoration-none text-dark hover-bg-light transition">
+                            <div class="fw-bold text-warning mb-1">/slow</div>
+                            <div class="small text-muted">Sleeps 10s to test timeout behaviors.</div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('diagnostics.error') }}" target="_blank" class="d-block p-3 border rounded text-decoration-none text-dark hover-bg-light transition">
+                            <div class="fw-bold text-danger mb-1">/error</div>
+                            <div class="small text-muted">Intentional 500 error for WAF rules.</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
